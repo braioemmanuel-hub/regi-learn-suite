@@ -2,8 +2,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import Landing from "./pages/Landing";
+import Auth from "./pages/Auth";
+import StudentDashboard from "./pages/student/StudentDashboard";
+import Fees from "./pages/student/Fees";
+import BioData from "./pages/student/BioData";
+import CourseRegistration from "./pages/student/CourseRegistration";
+import Results from "./pages/student/Results";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -14,11 +21,20 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/student" element={<StudentDashboard />} />
+            <Route path="/student/fees" element={<Fees />} />
+            <Route path="/student/biodata" element={<BioData />} />
+            <Route path="/student/courses" element={<CourseRegistration />} />
+            <Route path="/student/results" element={<Results />} />
+            <Route path="/student/*" element={<StudentDashboard />} />
+            <Route path="/admin/*" element={<StudentDashboard />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
