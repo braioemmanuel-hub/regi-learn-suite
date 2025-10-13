@@ -11,6 +11,15 @@ import Fees from "./pages/student/Fees";
 import BioData from "./pages/student/BioData";
 import CourseRegistration from "./pages/student/CourseRegistration";
 import Results from "./pages/student/Results";
+import OtherPayments from "./pages/student/OtherPayments";
+import Timetable from "./pages/student/Timetable";
+import Hostel from "./pages/student/Hostel";
+import Documents from "./pages/student/Documents";
+import ChangeProgramme from "./pages/student/ChangeProgramme";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import ManageResults from "./pages/admin/ManageResults";
+import ManagePayments from "./pages/admin/ManagePayments";
+import ManageStudents from "./pages/admin/ManageStudents";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,10 +37,17 @@ const App = () => (
             <Route path="/student" element={<StudentDashboard />} />
             <Route path="/student/fees" element={<Fees />} />
             <Route path="/student/biodata" element={<BioData />} />
+            <Route path="/student/payments" element={<OtherPayments />} />
             <Route path="/student/courses" element={<CourseRegistration />} />
+            <Route path="/student/timetable" element={<Timetable />} />
             <Route path="/student/results" element={<Results />} />
-            <Route path="/student/*" element={<StudentDashboard />} />
-            <Route path="/admin/*" element={<StudentDashboard />} />
+            <Route path="/student/hostel" element={<Hostel />} />
+            <Route path="/student/change-programme" element={<ChangeProgramme />} />
+            <Route path="/student/documents" element={<Documents />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/students" element={<ManageStudents />} />
+            <Route path="/admin/results" element={<ManageResults />} />
+            <Route path="/admin/payments" element={<ManagePayments />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
