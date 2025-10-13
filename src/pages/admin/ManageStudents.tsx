@@ -7,11 +7,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Loader2, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Student {
   id: string;
   full_name: string;
   email: string;
+  passport_photo: string | null;
   academic_details: Array<{
     programme: string;
     registration_number: string;
@@ -36,6 +38,7 @@ export default function ManageStudents() {
         id,
         full_name,
         email,
+        passport_photo,
         academic_details(programme, registration_number, payment_status)
       `)
       .order("full_name");
@@ -69,6 +72,7 @@ export default function ManageStudents() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Photo</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Programme</TableHead>
@@ -79,6 +83,14 @@ export default function ManageStudents() {
               <TableBody>
                 {students.map((student) => (
                   <TableRow key={student.id}>
+                    <TableCell>
+                      <Avatar>
+                        <AvatarImage src={student.passport_photo || ""} alt={student.full_name} />
+                        <AvatarFallback>
+                          {student.full_name.split(" ").map(n => n[0]).join("").toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TableCell>
                     <TableCell>{student.full_name}</TableCell>
                     <TableCell>{student.email}</TableCell>
                     <TableCell>
