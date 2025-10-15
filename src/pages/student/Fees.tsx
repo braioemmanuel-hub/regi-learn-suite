@@ -5,6 +5,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
 
 interface Payment {
   id: string;
@@ -18,8 +24,15 @@ interface Payment {
 
 const Fees = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [newPayment, setNewPayment] = useState({
+    amount: "",
+    description: "",
+    payment_type: "school_fees"
+  });
 
   useEffect(() => {
     fetchPayments();
@@ -41,6 +54,44 @@ const Fees = () => {
       setPayments(data || []);
     }
     setLoading(false);
+  };
+
+  const handleSubmitPayment = async () => {
+    if (!user || !newPayment.amount || !newPayment.description) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from("payments")
+      .insert({
+        student_id: user.id,
+        amount: parseFloat(newPayment.amount),
+        description: newPayment.description,
+        payment_type: newPayment.payment_type,
+        status: "pending",
+        due_date: new Date().toISOString(),
+      });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit payment request",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Payment request submitted successfully. Awaiting admin approval.",
+      });
+      setDialogOpen(false);
+      setNewPayment({ amount: "", description: "", payment_type: "school_fees" });
+      fetchPayments();
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -65,8 +116,45 @@ const Fees = () => {
         </div>
 
         <Card className="shadow-[var(--card-shadow)]">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Fee Payments</CardTitle>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Request Payment
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Submit Payment Request</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Amount (₦)</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      placeholder="Enter amount"
+                      value={newPayment.amount}
+                      onChange={(e) => setNewPayment({ ...newPayment, amount: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Input
+                      id="description"
+                      placeholder="e.g., School Fees - First Semester"
+                      value={newPayment.description}
+                      onChange={(e) => setNewPayment({ ...newPayment, description: e.target.value })}
+                    />
+                  </div>
+                  <Button onClick={handleSubmitPayment} className="w-full">
+                    Submit Request
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </CardHeader>
           <CardContent>
             {loading ? (

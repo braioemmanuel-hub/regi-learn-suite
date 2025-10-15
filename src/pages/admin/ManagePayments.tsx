@@ -61,7 +61,7 @@ export default function ManagePayments() {
     } else {
       toast({
         title: "Success",
-        description: "Payment status updated",
+        description: `Payment ${newStatus === "paid" ? "approved" : "rejected"}`,
       });
       fetchPayments();
     }
