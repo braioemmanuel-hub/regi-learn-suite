@@ -21,8 +21,6 @@ import AdminLogin from "./pages/admin/AdminLogin";
 import ManageResults from "./pages/admin/ManageResults";
 import ManagePayments from "./pages/admin/ManagePayments";
 import ManageStudents from "./pages/admin/ManageStudents";
-import ApproveRegistrations from "./pages/admin/ApproveRegistrations";
-import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,7 +35,6 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/register" element={<Register />} />
             <Route path="/student" element={<StudentDashboard />} />
             <Route path="/student/fees" element={<Fees />} />
             <Route path="/student/biodata" element={<BioData />} />
@@ -50,7 +47,6 @@ const App = () => (
             <Route path="/student/documents" element={<Documents />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/registrations" element={<ApproveRegistrations />} />
             <Route path="/admin/students" element={<ManageStudents />} />
             <Route path="/admin/results" element={<ManageResults />} />
             <Route path="/admin/payments" element={<ManagePayments />} />

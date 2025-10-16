@@ -47,7 +47,6 @@ const studentItems = [
 
 const adminItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Approve Registrations", url: "/admin/registrations", icon: Users },
   { title: "Manage Students", url: "/admin/students", icon: Users },
   { title: "Update Results", url: "/admin/results", icon: ClipboardList },
   { title: "Manage Payments", url: "/admin/payments", icon: DollarSign },

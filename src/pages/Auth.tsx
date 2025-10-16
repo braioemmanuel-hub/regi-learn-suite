@@ -64,34 +64,12 @@ const Auth = () => {
         
         setMode("login");
       } else {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
-
-        // Check if registration is approved
-        if (data.user) {
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('registration_approved')
-            .eq('id', data.user.id)
-            .maybeSingle();
-
-          if (profileError) throw profileError;
-
-          if (profile && !profile.registration_approved) {
-            await supabase.auth.signOut();
-            toast({
-              title: "Registration Pending",
-              description: "Your registration is still under review. Please wait for approval (2-3 weeks).",
-              variant: "destructive",
-            });
-            setLoading(false);
-            return;
-          }
-        }
 
         toast({
           title: "Welcome back!",
