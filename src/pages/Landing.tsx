@@ -39,8 +39,8 @@ const Landing = () => {
             <Link to="/auth">
               <Button variant="outline">Login</Button>
             </Link>
-            <Link to="/auth?mode=register">
-              <Button>Register</Button>
+            <Link to="/register">
+              <Button>New Student Registration</Button>
             </Link>
           </div>
         </div>
@@ -56,9 +56,9 @@ const Landing = () => {
           Access your academic records, register for courses, and manage your student life.
         </p>
         <div className="flex gap-4 justify-center">
-          <Link to="/auth?mode=register">
+          <Link to="/register">
             <Button size="lg" className="text-lg px-8">
-              Get Started
+              New Student Registration
             </Button>
           </Link>
           <Link to="/auth">
