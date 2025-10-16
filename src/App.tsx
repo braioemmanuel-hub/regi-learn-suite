@@ -17,6 +17,7 @@ import Hostel from "./pages/student/Hostel";
 import Documents from "./pages/student/Documents";
 import ChangeProgramme from "./pages/student/ChangeProgramme";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminLogin from "./pages/admin/AdminLogin";
 import ManageResults from "./pages/admin/ManageResults";
 import ManagePayments from "./pages/admin/ManagePayments";
 import ManageStudents from "./pages/admin/ManageStudents";
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/student/hostel" element={<Hostel />} />
             <Route path="/student/change-programme" element={<ChangeProgramme />} />
             <Route path="/student/documents" element={<Documents />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/students" element={<ManageStudents />} />
             <Route path="/admin/results" element={<ManageResults />} />

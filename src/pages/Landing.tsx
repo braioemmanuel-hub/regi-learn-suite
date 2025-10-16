@@ -116,8 +116,13 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="border-t bg-card mt-20">
-        <div className="container mx-auto px-4 py-8 text-center text-muted-foreground">
-          <p>&copy; 2025 GreenLeaf University. All rights reserved.</p>
+        <div className="container mx-auto px-4 py-8 text-center">
+          <p className="text-muted-foreground">&copy; 2025 GreenLeaf University. All rights reserved.</p>
+          <div className="mt-4">
+            <Link to="/admin/login" className="text-sm text-muted-foreground hover:text-primary">
+              Admin Login
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
