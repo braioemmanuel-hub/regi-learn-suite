@@ -204,7 +204,9 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          is_registration_payment: boolean | null
           paid_date: string | null
+          payment_proof: string | null
           payment_type: string
           status: string | null
           student_id: string
@@ -216,7 +218,9 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          is_registration_payment?: boolean | null
           paid_date?: string | null
+          payment_proof?: string | null
           payment_type: string
           status?: string | null
           student_id: string
@@ -228,7 +232,9 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          is_registration_payment?: boolean | null
           paid_date?: string | null
+          payment_proof?: string | null
           payment_type?: string
           status?: string | null
           student_id?: string
@@ -246,54 +252,154 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
+          approved_at: string | null
+          approved_by: string | null
+          country: string | null
           created_at: string | null
+          date_of_birth: string | null
           email: string
+          first_name: string | null
           full_name: string
+          gender: string | null
           home_address: string | null
           hometown: string | null
           id: string
+          last_name: string | null
+          lga: string | null
           marital_status: string | null
           next_of_kin_address: string | null
+          next_of_kin_email: string | null
           next_of_kin_name: string | null
           next_of_kin_phone: string | null
+          next_of_kin_relationship: string | null
           passport_photo: string | null
+          phone_number: string | null
           place_of_birth: string | null
+          proposed_course: string | null
+          registration_approved: boolean | null
+          religion: string | null
           state: string | null
+          state_of_origin: string | null
+          student_unique_id: string | null
+          surname: string | null
           updated_at: string | null
         }
         Insert: {
+          address?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          country?: string | null
           created_at?: string | null
+          date_of_birth?: string | null
           email: string
+          first_name?: string | null
           full_name: string
+          gender?: string | null
           home_address?: string | null
           hometown?: string | null
           id: string
+          last_name?: string | null
+          lga?: string | null
           marital_status?: string | null
           next_of_kin_address?: string | null
+          next_of_kin_email?: string | null
           next_of_kin_name?: string | null
           next_of_kin_phone?: string | null
+          next_of_kin_relationship?: string | null
           passport_photo?: string | null
+          phone_number?: string | null
           place_of_birth?: string | null
+          proposed_course?: string | null
+          registration_approved?: boolean | null
+          religion?: string | null
           state?: string | null
+          state_of_origin?: string | null
+          student_unique_id?: string | null
+          surname?: string | null
           updated_at?: string | null
         }
         Update: {
+          address?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          country?: string | null
           created_at?: string | null
+          date_of_birth?: string | null
           email?: string
+          first_name?: string | null
           full_name?: string
+          gender?: string | null
           home_address?: string | null
           hometown?: string | null
           id?: string
+          last_name?: string | null
+          lga?: string | null
           marital_status?: string | null
           next_of_kin_address?: string | null
+          next_of_kin_email?: string | null
           next_of_kin_name?: string | null
           next_of_kin_phone?: string | null
+          next_of_kin_relationship?: string | null
           passport_photo?: string | null
+          phone_number?: string | null
           place_of_birth?: string | null
+          proposed_course?: string | null
+          registration_approved?: boolean | null
+          religion?: string | null
           state?: string | null
+          state_of_origin?: string | null
+          student_unique_id?: string | null
+          surname?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      registration_documents: {
+        Row: {
+          birth_certificate: string | null
+          created_at: string | null
+          id: string
+          passport_photo: string | null
+          ssce_result: string | null
+          state_of_origin_cert: string | null
+          student_id: string
+        }
+        Insert: {
+          birth_certificate?: string | null
+          created_at?: string | null
+          id?: string
+          passport_photo?: string | null
+          ssce_result?: string | null
+          state_of_origin_cert?: string | null
+          student_id: string
+        }
+        Update: {
+          birth_certificate?: string | null
+          created_at?: string | null
+          id?: string
+          passport_photo?: string | null
+          ssce_result?: string | null
+          state_of_origin_cert?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_documents_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       results: {
         Row: {
@@ -455,6 +561,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_student_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
