@@ -23,6 +23,7 @@ import ManagePayments from "./pages/admin/ManagePayments";
 import ManageStudents from "./pages/admin/ManageStudents";
 import ApproveRegistrations from "./pages/admin/ApproveRegistrations";
 import Register from "./pages/Register";
+import RegistrationForm from "./pages/student/RegistrationForm";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/student/hostel" element={<Hostel />} />
             <Route path="/student/change-programme" element={<ChangeProgramme />} />
             <Route path="/student/documents" element={<Documents />} />
+            <Route path="/student/registration-form" element={<RegistrationForm />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/registrations" element={<ApproveRegistrations />} />

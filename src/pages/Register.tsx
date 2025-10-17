@@ -162,18 +162,15 @@ export default function Register() {
 
       if (paymentError) throw paymentError;
 
-      // Sign out immediately after registration
-      await supabase.auth.signOut();
-
       toast({
         title: "Registration Submitted",
-        description: "Your registration is under review. This will take 2-3 weeks. Your Student ID is: " + studentId,
+        description: "Redirecting to your registration form...",
       });
 
-      // Show print form option
+      // Redirect to registration form
       setTimeout(() => {
-        navigate('/');
-      }, 5000);
+        navigate('/student/registration-form');
+      }, 2000);
 
     } catch (error: any) {
       toast({

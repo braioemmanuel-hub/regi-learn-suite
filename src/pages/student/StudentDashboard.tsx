@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
@@ -59,6 +60,7 @@ interface Payment {
 const StudentDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [academicDetails, setAcademicDetails] = useState<AcademicDetails | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
@@ -68,8 +70,31 @@ const StudentDashboard = () => {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    if (user) {
+      checkApprovalAndFetchData();
+    }
   }, [user]);
+
+  const checkApprovalAndFetchData = async () => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('registration_approved')
+        .eq('id', user?.id)
+        .single();
+
+      if (error) throw error;
+
+      if (!profile.registration_approved) {
+        navigate('/student/registration-form');
+        return;
+      }
+
+      fetchData();
+    } catch (error) {
+      console.error('Error checking approval:', error);
+    }
+  };
 
   const fetchData = async () => {
     if (!user) return;
