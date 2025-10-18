@@ -5,9 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Loader2, Eye } from "lucide-react";
+import { Loader2, Eye, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 interface Student {
   id: string;
@@ -15,17 +20,30 @@ interface Student {
   email: string;
   passport_photo: string | null;
   academic_details: Array<{
+    id: string;
     programme: string;
     registration_number: string;
     payment_status: string;
+    faculty: string;
+    year_of_admission: number;
   }>;
 }
 
 export default function ManageStudents() {
   const { userRole } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editDialog, setEditDialog] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [editForm, setEditForm] = useState({
+    registration_number: "",
+    faculty: "",
+    programme: "",
+    year_of_admission: new Date().getFullYear(),
+    payment_status: "pending"
+  });
 
   useEffect(() => {
     fetchStudents();
@@ -39,7 +57,7 @@ export default function ManageStudents() {
         full_name,
         email,
         passport_photo,
-        academic_details(programme, registration_number, payment_status)
+        academic_details(id, programme, registration_number, payment_status, faculty, year_of_admission)
       `)
       .order("full_name");
 
@@ -47,6 +65,44 @@ export default function ManageStudents() {
       setStudents(data as any);
     }
     setLoading(false);
+  };
+
+  const openEditDialog = (student: Student) => {
+    setSelectedStudent(student);
+    if (student.academic_details?.[0]) {
+      setEditForm({
+        registration_number: student.academic_details[0].registration_number,
+        faculty: student.academic_details[0].faculty,
+        programme: student.academic_details[0].programme,
+        year_of_admission: student.academic_details[0].year_of_admission,
+        payment_status: student.academic_details[0].payment_status,
+      });
+    }
+    setEditDialog(true);
+  };
+
+  const saveAcademicDetails = async () => {
+    if (!selectedStudent?.academic_details?.[0]?.id) return;
+
+    const { error } = await supabase
+      .from("academic_details")
+      .update(editForm)
+      .eq("id", selectedStudent.academic_details[0].id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update academic details",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Academic details updated successfully",
+      });
+      setEditDialog(false);
+      fetchStudents();
+    }
   };
 
   if (loading) {
@@ -77,6 +133,9 @@ export default function ManageStudents() {
                   <TableHead>Email</TableHead>
                   <TableHead>Programme</TableHead>
                   <TableHead>Registration Number</TableHead>
+                  <TableHead>Faculty</TableHead>
+                  <TableHead>Year</TableHead>
+                  <TableHead>Payment Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -100,10 +159,21 @@ export default function ManageStudents() {
                       {student.academic_details?.[0]?.registration_number || "N/A"}
                     </TableCell>
                     <TableCell>
-                      <Button size="sm" variant="outline">
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
-                      </Button>
+                      {student.academic_details?.[0]?.faculty || "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      {student.academic_details?.[0]?.year_of_admission || "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      {student.academic_details?.[0]?.payment_status || "N/A"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => openEditDialog(student)}>
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -112,6 +182,61 @@ export default function ManageStudents() {
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={editDialog} onOpenChange={setEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Academic Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Registration Number</Label>
+              <Input
+                value={editForm.registration_number}
+                onChange={(e) => setEditForm({ ...editForm, registration_number: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Faculty</Label>
+              <Input
+                value={editForm.faculty}
+                onChange={(e) => setEditForm({ ...editForm, faculty: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Programme</Label>
+              <Input
+                value={editForm.programme}
+                onChange={(e) => setEditForm({ ...editForm, programme: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label>Year of Admission</Label>
+              <Input
+                type="number"
+                value={editForm.year_of_admission}
+                onChange={(e) => setEditForm({ ...editForm, year_of_admission: parseInt(e.target.value) })}
+              />
+            </div>
+            <div>
+              <Label>Payment Status</Label>
+              <Select value={editForm.payment_status} onValueChange={(value) => setEditForm({ ...editForm, payment_status: value })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="partial">Partial</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={saveAcademicDetails} className="w-full">
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

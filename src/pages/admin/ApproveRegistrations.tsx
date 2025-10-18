@@ -108,11 +108,21 @@ export default function ApproveRegistrations() {
   };
 
   const rejectRegistration = async (studentId: string) => {
-    // In a real app, you might want to delete or mark as rejected
-    toast({
-      title: "Info",
-      description: "Rejection feature can be implemented based on requirements",
-    });
+    const { error } = await supabase.auth.admin.deleteUser(studentId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to reject registration",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Registration rejected and student account deleted",
+      });
+      fetchPendingStudents();
+    }
   };
 
   if (loading) {

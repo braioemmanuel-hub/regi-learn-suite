@@ -110,12 +110,21 @@ export default function ManagePayments() {
                     </TableCell>
                     <TableCell>
                       {payment.status === "pending" && (
-                        <Button
-                          size="sm"
-                          onClick={() => updatePaymentStatus(payment.id, "paid")}
-                        >
-                          Mark as Paid
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => updatePaymentStatus(payment.id, "paid")}
+                          >
+                            Mark as Paid
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => updatePaymentStatus(payment.id, "declined")}
+                          >
+                            Decline
+                          </Button>
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>

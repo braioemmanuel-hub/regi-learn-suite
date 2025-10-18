@@ -22,6 +22,9 @@ import ManageResults from "./pages/admin/ManageResults";
 import ManagePayments from "./pages/admin/ManagePayments";
 import ManageStudents from "./pages/admin/ManageStudents";
 import ApproveRegistrations from "./pages/admin/ApproveRegistrations";
+import ManageCourses from "./pages/admin/ManageCourses";
+import UploadDocuments from "./pages/admin/UploadDocuments";
+import ManageTimetable from "./pages/admin/ManageTimetable";
 import Register from "./pages/Register";
 import RegistrationForm from "./pages/student/RegistrationForm";
 import NotFound from "./pages/NotFound";
@@ -56,6 +59,9 @@ const App = () => (
             <Route path="/admin/students" element={<ManageStudents />} />
             <Route path="/admin/results" element={<ManageResults />} />
             <Route path="/admin/payments" element={<ManagePayments />} />
+            <Route path="/admin/courses" element={<ManageCourses />} />
+            <Route path="/admin/documents" element={<UploadDocuments />} />
+            <Route path="/admin/timetable" element={<ManageTimetable />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
