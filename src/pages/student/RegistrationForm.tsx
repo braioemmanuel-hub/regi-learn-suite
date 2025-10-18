@@ -15,10 +15,14 @@ interface ProfileData {
   gender: string;
   marital_status: string;
   date_of_birth: string;
+  place_of_birth: string | null;
   address: string;
+  home_address: string | null;
   country: string;
+  state: string | null;
   state_of_origin: string;
   lga: string;
+  hometown: string | null;
   email: string;
   phone_number: string;
   religion: string;
@@ -188,6 +192,10 @@ export default function RegistrationForm() {
                   <p className="font-medium">{new Date(profile.date_of_birth).toLocaleDateString()}</p>
                 </div>
                 <div>
+                  <p className="text-sm text-muted-foreground">Place of Birth</p>
+                  <p className="font-medium">{profile.place_of_birth || 'N/A'}</p>
+                </div>
+                <div>
                   <p className="text-sm text-muted-foreground">Marital Status</p>
                   <p className="font-medium capitalize">{profile.marital_status}</p>
                 </div>
@@ -207,9 +215,17 @@ export default function RegistrationForm() {
                   <p className="text-sm text-muted-foreground">Address</p>
                   <p className="font-medium">{profile.address}</p>
                 </div>
+                <div className="col-span-2">
+                  <p className="text-sm text-muted-foreground">Home Address</p>
+                  <p className="font-medium">{profile.home_address || 'N/A'}</p>
+                </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Country</p>
                   <p className="font-medium">{profile.country}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">State</p>
+                  <p className="font-medium">{profile.state || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">State of Origin</p>
@@ -218,6 +234,10 @@ export default function RegistrationForm() {
                 <div>
                   <p className="text-sm text-muted-foreground">L.G.A</p>
                   <p className="font-medium">{profile.lga}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Hometown</p>
+                  <p className="font-medium">{profile.hometown || 'N/A'}</p>
                 </div>
               </div>
             </div>

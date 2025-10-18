@@ -14,11 +14,31 @@ interface PendingStudent {
   id: string;
   student_unique_id: string;
   full_name: string;
+  surname: string;
+  first_name: string;
+  last_name: string;
   email: string;
   phone_number: string;
+  gender: string;
+  date_of_birth: string;
+  place_of_birth: string | null;
+  marital_status: string;
+  religion: string;
+  address: string;
+  home_address: string | null;
+  country: string;
+  state: string | null;
+  state_of_origin: string;
+  lga: string;
+  hometown: string | null;
   proposed_course: string;
   registration_approved: boolean;
   passport_photo: string | null;
+  next_of_kin_name: string;
+  next_of_kin_phone: string;
+  next_of_kin_email: string;
+  next_of_kin_address: string;
+  next_of_kin_relationship: string;
   registration_documents: Array<{
     ssce_result: string;
     birth_certificate: string;
@@ -47,14 +67,7 @@ export default function ApproveRegistrations() {
     const { data, error } = await supabase
       .from("profiles")
       .select(`
-        id,
-        student_unique_id,
-        full_name,
-        email,
-        phone_number,
-        proposed_course,
-        registration_approved,
-        passport_photo,
+        *,
         registration_documents(ssce_result, birth_certificate, state_of_origin_cert),
         payments(amount, payment_proof, status)
       `)
@@ -184,63 +197,192 @@ export default function ApproveRegistrations() {
       </div>
 
       <Dialog open={viewDialog} onOpenChange={setViewDialog}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Student Details</DialogTitle>
+            <DialogTitle>Student Registration Details</DialogTitle>
           </DialogHeader>
           {selectedStudent && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-6">
+              {/* Student ID and Photo */}
+              <div className="flex justify-between items-start border-b pb-4">
                 <div>
-                  <p className="font-semibold">Student ID:</p>
-                  <p>{selectedStudent.student_unique_id}</p>
+                  <p className="text-sm text-muted-foreground">Student ID</p>
+                  <p className="text-xl font-bold text-primary">{selectedStudent.student_unique_id}</p>
                 </div>
-                <div>
-                  <p className="font-semibold">Name:</p>
-                  <p>{selectedStudent.full_name}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Email:</p>
-                  <p>{selectedStudent.email}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Phone:</p>
-                  <p>{selectedStudent.phone_number}</p>
-                </div>
-                <div>
-                  <p className="font-semibold">Proposed Course:</p>
-                  <p>{selectedStudent.proposed_course}</p>
+                {selectedStudent.passport_photo && (
+                  <img
+                    src={selectedStudent.passport_photo}
+                    alt="Passport"
+                    className="h-32 w-32 object-cover border-2 border-border rounded"
+                  />
+                )}
+              </div>
+
+              {/* Personal Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-primary">Personal Information</h3>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Surname</p>
+                    <p className="font-medium">{selectedStudent.surname}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">First Name</p>
+                    <p className="font-medium">{selectedStudent.first_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Last Name</p>
+                    <p className="font-medium">{selectedStudent.last_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Gender</p>
+                    <p className="font-medium capitalize">{selectedStudent.gender}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Date of Birth</p>
+                    <p className="font-medium">{new Date(selectedStudent.date_of_birth).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Place of Birth</p>
+                    <p className="font-medium">{selectedStudent.place_of_birth || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Marital Status</p>
+                    <p className="font-medium capitalize">{selectedStudent.marital_status}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Religion</p>
+                    <p className="font-medium">{selectedStudent.religion || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Phone</p>
+                    <p className="font-medium">{selectedStudent.phone_number}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="font-medium">{selectedStudent.email}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-sm text-muted-foreground">Address</p>
+                    <p className="font-medium">{selectedStudent.address}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-sm text-muted-foreground">Home Address</p>
+                    <p className="font-medium">{selectedStudent.home_address || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Country</p>
+                    <p className="font-medium">{selectedStudent.country}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">State</p>
+                    <p className="font-medium">{selectedStudent.state || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">State of Origin</p>
+                    <p className="font-medium">{selectedStudent.state_of_origin}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">L.G.A</p>
+                    <p className="font-medium">{selectedStudent.lga}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Hometown</p>
+                    <p className="font-medium">{selectedStudent.hometown || 'N/A'}</p>
+                  </div>
                 </div>
               </div>
 
+              {/* Next of Kin */}
               <div>
-                <p className="font-semibold mb-2">Documents:</p>
-                <div className="grid grid-cols-2 gap-2">
+                <h3 className="text-lg font-semibold mb-3 text-primary">Next of Kin Information</h3>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Name</p>
+                    <p className="font-medium">{selectedStudent.next_of_kin_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Relationship</p>
+                    <p className="font-medium">{selectedStudent.next_of_kin_relationship}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Phone</p>
+                    <p className="font-medium">{selectedStudent.next_of_kin_phone}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <p className="font-medium">{selectedStudent.next_of_kin_email}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-sm text-muted-foreground">Address</p>
+                    <p className="font-medium">{selectedStudent.next_of_kin_address}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Academic Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-primary">Academic Information</h3>
+                <div>
+                  <p className="text-sm text-muted-foreground">Proposed Course</p>
+                  <p className="font-medium">{selectedStudent.proposed_course}</p>
+                </div>
+              </div>
+
+              {/* Uploaded Documents */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-primary">Uploaded Documents</h3>
+                <div className="grid grid-cols-2 gap-3">
                   {selectedStudent.registration_documents?.[0]?.ssce_result && (
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" asChild>
                       <a href={selectedStudent.registration_documents[0].ssce_result} target="_blank" rel="noopener noreferrer">
-                        SSCE Result
+                        View SSCE Result
                       </a>
                     </Button>
                   )}
                   {selectedStudent.registration_documents?.[0]?.birth_certificate && (
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" asChild>
                       <a href={selectedStudent.registration_documents[0].birth_certificate} target="_blank" rel="noopener noreferrer">
-                        Birth Certificate
+                        View Birth Certificate
+                      </a>
+                    </Button>
+                  )}
+                  {selectedStudent.registration_documents?.[0]?.state_of_origin_cert && (
+                    <Button variant="outline" asChild>
+                      <a href={selectedStudent.registration_documents[0].state_of_origin_cert} target="_blank" rel="noopener noreferrer">
+                        View State of Origin Certificate
                       </a>
                     </Button>
                   )}
                 </div>
               </div>
 
-              {selectedStudent.payments?.[0]?.payment_proof && (
+              {/* Payment Information */}
+              {selectedStudent.payments?.[0] && (
                 <div>
-                  <p className="font-semibold mb-2">Payment Proof:</p>
-                  <img 
-                    src={selectedStudent.payments[0].payment_proof} 
-                    alt="Payment proof" 
-                    className="max-w-full h-auto rounded"
-                  />
+                  <h3 className="text-lg font-semibold mb-3 text-primary">Payment Information</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Amount</p>
+                      <p className="font-medium">₦{selectedStudent.payments[0].amount?.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Status</p>
+                      <Badge variant={selectedStudent.payments[0].status === "paid" ? "default" : "secondary"}>
+                        {selectedStudent.payments[0].status}
+                      </Badge>
+                    </div>
+                    {selectedStudent.payments[0].payment_proof && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-2">Payment Proof</p>
+                        <img 
+                          src={selectedStudent.payments[0].payment_proof} 
+                          alt="Payment proof" 
+                          className="max-w-full h-auto rounded border"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
