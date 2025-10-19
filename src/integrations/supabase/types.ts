@@ -561,6 +561,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_user: {
+        Args: { user_id: string }
+        Returns: undefined
+      }
       generate_student_id: {
         Args: Record<PropertyKey, never>
         Returns: string

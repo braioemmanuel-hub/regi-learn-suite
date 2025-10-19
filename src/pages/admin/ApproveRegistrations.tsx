@@ -108,29 +108,25 @@ export default function ApproveRegistrations() {
   };
 
   const rejectRegistration = async (studentId: string) => {
-    // Delete profile (will cascade delete related data via DB constraints)
-    const { error: profileError } = await supabase
+    // Delete profile (cascade delete will handle auth.users and related data)
+    const { error } = await supabase
       .from("profiles")
       .delete()
       .eq("id", studentId);
 
-    if (profileError) {
+    if (error) {
       toast({
         title: "Error",
         description: "Failed to reject registration",
         variant: "destructive",
       });
-      return;
+    } else {
+      toast({
+        title: "Success",
+        description: "Registration rejected successfully",
+      });
+      fetchPendingStudents();
     }
-
-    // Delete auth user
-    const { error: authError } = await supabase.rpc('delete_user', { user_id: studentId });
-    
-    toast({
-      title: "Success",
-      description: "Registration rejected successfully",
-    });
-    fetchPendingStudents();
   };
 
   if (loading) {
