@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Check, X, Eye } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface PendingStudent {
   id: string;
@@ -58,6 +59,8 @@ export default function ApproveRegistrations() {
   const [loading, setLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState<PendingStudent | null>(null);
   const [viewDialog, setViewDialog] = useState(false);
+  const [rejectDialog, setRejectDialog] = useState(false);
+  const [studentToReject, setStudentToReject] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPendingStudents();
@@ -107,12 +110,19 @@ export default function ApproveRegistrations() {
     }
   };
 
-  const rejectRegistration = async (studentId: string) => {
+  const handleRejectClick = (studentId: string) => {
+    setStudentToReject(studentId);
+    setRejectDialog(true);
+  };
+
+  const confirmRejectRegistration = async () => {
+    if (!studentToReject) return;
+
     // Delete profile (cascade delete will handle auth.users and related data)
     const { error } = await supabase
       .from("profiles")
       .delete()
-      .eq("id", studentId);
+      .eq("id", studentToReject);
 
     if (error) {
       toast({
@@ -127,6 +137,9 @@ export default function ApproveRegistrations() {
       });
       fetchPendingStudents();
     }
+    
+    setRejectDialog(false);
+    setStudentToReject(null);
   };
 
   if (loading) {
@@ -195,7 +208,7 @@ export default function ApproveRegistrations() {
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => rejectRegistration(student.id)}
+                          onClick={() => handleRejectClick(student.id)}
                         >
                           <X className="w-4 h-4 mr-1" />
                           Reject
@@ -403,6 +416,21 @@ export default function ApproveRegistrations() {
           )}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={rejectDialog} onOpenChange={setRejectDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Do you want to reject this registration?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the student's registration and all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRejectRegistration}>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }
