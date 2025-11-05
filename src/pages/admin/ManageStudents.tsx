@@ -95,14 +95,18 @@ export default function ManageStudents() {
         description: "Failed to update academic details",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Success",
-        description: "Academic details updated successfully",
-      });
-      setEditDialog(false);
-      fetchStudents();
+      return;
     }
+    
+    toast({
+      title: "Success",
+      description: "Academic details updated successfully",
+    });
+    
+    // Close dialog and refresh
+    setEditDialog(false);
+    setSelectedStudent(null);
+    await fetchStudents();
   };
 
   if (loading) {
