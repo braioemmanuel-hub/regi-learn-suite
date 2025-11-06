@@ -7,7 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Check, X, Eye } from "lucide-react";
+import { Loader2, Check, X, Eye, Download } from "lucide-react";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
@@ -61,6 +62,8 @@ export default function ApproveRegistrations() {
   const [viewDialog, setViewDialog] = useState(false);
   const [rejectDialog, setRejectDialog] = useState(false);
   const [studentToReject, setStudentToReject] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const studentsPerPage = 10;
 
   useEffect(() => {
     fetchPendingStudents();
@@ -142,6 +145,56 @@ export default function ApproveRegistrations() {
     setStudentToReject(null);
   };
 
+  const exportToCSV = () => {
+    const headers = [
+      "Student ID", "Full Name", "Email", "Phone", "Gender", "Date of Birth",
+      "Proposed Course", "Payment Status", "Address", "State", "Country",
+      "Next of Kin Name", "Next of Kin Phone"
+    ];
+    
+    const rows = students.map(student => [
+      student.student_unique_id || "N/A",
+      student.full_name,
+      student.email,
+      student.phone_number,
+      student.gender,
+      student.date_of_birth,
+      student.proposed_course,
+      student.payments?.[0]?.status || "No Payment",
+      student.address,
+      student.state || "N/A",
+      student.country,
+      student.next_of_kin_name,
+      student.next_of_kin_phone
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `pending_registrations_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Success",
+      description: "Registration data exported successfully",
+    });
+  };
+
+  // Pagination calculations
+  const indexOfLastStudent = currentPage * studentsPerPage;
+  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
+  const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
+  const totalPages = Math.ceil(students.length / studentsPerPage);
+
   if (loading) {
     return (
       <DashboardLayout role={userRole || "admin"}>
@@ -155,11 +208,17 @@ export default function ApproveRegistrations() {
   return (
     <DashboardLayout role={userRole || "admin"}>
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Approve Registrations</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Approve Registrations</h1>
+          <Button onClick={exportToCSV} variant="outline" disabled={students.length === 0}>
+            <Download className="w-4 h-4 mr-2" />
+            Export Data
+          </Button>
+        </div>
 
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle>Pending Student Registrations</CardTitle>
+            <CardTitle>Pending Student Registrations ({students.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -174,8 +233,15 @@ export default function ApproveRegistrations() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {students.map((student) => (
-                  <TableRow key={student.id}>
+                {currentStudents.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                      No pending registrations
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  currentStudents.map((student) => (
+                    <TableRow key={student.id}>
                     <TableCell>{student.student_unique_id}</TableCell>
                     <TableCell>{student.full_name}</TableCell>
                     <TableCell>{student.email}</TableCell>
@@ -216,9 +282,42 @@ export default function ApproveRegistrations() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                  ))
+                )}
               </TableBody>
             </Table>
+            
+            {totalPages > 1 && (
+              <div className="mt-4">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

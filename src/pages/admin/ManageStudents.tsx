@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Loader2, Eye, Edit, Trash2 } from "lucide-react";
+import { Loader2, Eye, Edit, Trash2, Download } from "lucide-react";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -91,6 +92,8 @@ export default function ManageStudents() {
     year_of_admission: new Date().getFullYear(),
     payment_status: "pending"
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const studentsPerPage = 10;
 
   useEffect(() => {
     fetchStudents();
@@ -228,6 +231,57 @@ export default function ManageStudents() {
     setStudentToDelete(null);
   };
 
+  const exportToCSV = () => {
+    const headers = [
+      "Student ID", "Full Name", "Email", "Programme", "Registration Number", 
+      "Faculty", "Year of Admission", "Payment Status", "Phone", "Gender", 
+      "Date of Birth", "Address", "State", "Country"
+    ];
+    
+    const rows = students.map(student => [
+      student.student_unique_id || "N/A",
+      student.full_name,
+      student.email,
+      student.academic_details?.[0]?.programme || "N/A",
+      student.academic_details?.[0]?.registration_number || "N/A",
+      student.academic_details?.[0]?.faculty || "N/A",
+      student.academic_details?.[0]?.year_of_admission || "N/A",
+      student.academic_details?.[0]?.payment_status || "N/A",
+      student.phone_number || "N/A",
+      student.gender || "N/A",
+      student.date_of_birth || "N/A",
+      student.address || "N/A",
+      student.state || "N/A",
+      student.country || "N/A"
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `students_data_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Success",
+      description: "Student data exported successfully",
+    });
+  };
+
+  // Pagination calculations
+  const indexOfLastStudent = currentPage * studentsPerPage;
+  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
+  const currentStudents = students.slice(indexOfFirstStudent, indexOfLastStudent);
+  const totalPages = Math.ceil(students.length / studentsPerPage);
+
   if (loading) {
     return (
       <DashboardLayout role={userRole || "admin"}>
@@ -241,11 +295,17 @@ export default function ManageStudents() {
   return (
     <DashboardLayout role={userRole || "admin"}>
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Manage Students</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Manage Students</h1>
+          <Button onClick={exportToCSV} variant="outline">
+            <Download className="w-4 h-4 mr-2" />
+            Export Data
+          </Button>
+        </div>
 
         <Card className="shadow-card">
           <CardHeader>
-            <CardTitle>All Students</CardTitle>
+            <CardTitle>All Students ({students.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -263,7 +323,7 @@ export default function ManageStudents() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {students.map((student) => (
+                {currentStudents.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell>
                       <Avatar>
@@ -310,6 +370,38 @@ export default function ManageStudents() {
                 ))}
               </TableBody>
             </Table>
+            
+            {totalPages > 1 && (
+              <div className="mt-4">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
