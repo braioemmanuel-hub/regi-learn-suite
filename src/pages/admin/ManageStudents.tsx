@@ -178,8 +178,9 @@ export default function ManageStudents() {
       return;
     }
 
-    // Update academic details if exists
+    // Handle academic details - update if exists, insert if not
     if (selectedStudent.academic_details?.[0]?.id) {
+      // Update existing academic details
       const { error: academicError } = await supabase
         .from("academic_details")
         .update(academicForm)
@@ -193,11 +194,28 @@ export default function ManageStudents() {
         });
         return;
       }
+    } else {
+      // Insert new academic details if they don't exist
+      const { error: academicError } = await supabase
+        .from("academic_details")
+        .insert({
+          student_id: selectedStudent.id,
+          ...academicForm
+        });
+
+      if (academicError) {
+        toast({
+          title: "Error",
+          description: "Failed to create academic details",
+          variant: "destructive",
+        });
+        return;
+      }
     }
     
     toast({
       title: "Success",
-      description: "Student details updated successfully",
+      description: "Student details updated successfully. Changes will reflect on student dashboard.",
     });
     
     setEditDialog(false);
