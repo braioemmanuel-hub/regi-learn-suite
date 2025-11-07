@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   CreditCard,
@@ -13,7 +14,9 @@ import {
   Users,
   DollarSign,
   GraduationCap,
+  Shield,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sidebar,
   SidebarContent,
@@ -29,7 +32,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 
 interface AppSidebarProps {
-  role: "admin" | "student";
+  role: "admin" | "student" | "super_admin";
 }
 
 const studentItems = [
@@ -46,22 +49,63 @@ const studentItems = [
 ];
 
 const adminItems = [
-  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Approve Registrations", url: "/admin/registrations", icon: Users },
-  { title: "Manage Students", url: "/admin/students", icon: Users },
-  { title: "Update Results", url: "/admin/results", icon: ClipboardList },
-  { title: "Manage Payments", url: "/admin/payments", icon: DollarSign },
-  { title: "Manage Courses", url: "/admin/courses", icon: GraduationCap },
-  { title: "Upload Documents", url: "/admin/documents", icon: FileText },
-  { title: "Timetable", url: "/admin/timetable", icon: Calendar },
+  { title: "Dashboard", url: "/admin", icon: LayoutDashboard, id: "dashboard" },
+  { title: "Approve Registrations", url: "/admin/registrations", icon: Users, id: "registrations" },
+  { title: "Manage Students", url: "/admin/students", icon: Users, id: "students" },
+  { title: "Update Results", url: "/admin/results", icon: ClipboardList, id: "results" },
+  { title: "Manage Payments", url: "/admin/payments", icon: DollarSign, id: "payments" },
+  { title: "Manage Courses", url: "/admin/courses", icon: GraduationCap, id: "courses" },
+  { title: "Upload Documents", url: "/admin/documents", icon: FileText, id: "documents" },
+  { title: "Timetable", url: "/admin/timetable", icon: Calendar, id: "timetable" },
+];
+
+const superAdminItems = [
+  ...adminItems,
+  { title: "Manage Admins", url: "/admin/manage-admins", icon: Shield, id: "manage_admins" },
 ];
 
 export function AppSidebar({ role }: AppSidebarProps) {
   const { state } = useSidebar();
   const location = useLocation();
-  const { signOut } = useAuth();
-  const items = role === "student" ? studentItems : adminItems;
+  const { signOut, user } = useAuth();
+  const [allowedMenuItems, setAllowedMenuItems] = useState<string[]>([]);
+  const [loading, setLoading] = useState(role === "admin");
 
+  useEffect(() => {
+    if (role === "admin" && user) {
+      fetchAdminPermissions();
+    } else {
+      setLoading(false);
+    }
+  }, [role, user]);
+
+  const fetchAdminPermissions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("admin_permissions")
+        .select("menu_item")
+        .eq("admin_user_id", user!.id);
+
+      if (error) throw error;
+      
+      setAllowedMenuItems(data?.map(p => p.menu_item) || []);
+    } catch (error) {
+      console.error("Error fetching permissions:", error);
+      setAllowedMenuItems([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getFilteredItems = () => {
+    if (role === "student") return studentItems;
+    if (role === "super_admin") return superAdminItems;
+    
+    // For regular admins, filter based on permissions
+    return adminItems.filter(item => allowedMenuItems.includes(item.id));
+  };
+
+  const items = getFilteredItems();
   const isActive = (path: string) => location.pathname === path;
   const isCollapsed = state === "collapsed";
 
@@ -84,8 +128,11 @@ export function AppSidebar({ role }: AppSidebarProps) {
         <SidebarGroup>
           <SidebarGroupLabel>Menu</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
+            {loading ? (
+              <div className="px-4 py-2 text-sm text-muted-foreground">Loading...</div>
+            ) : (
+              <SidebarMenu>
+                {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
@@ -103,13 +150,14 @@ export function AppSidebar({ role }: AppSidebarProps) {
                 </SidebarMenuItem>
               ))}
               
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={signOut}>
-                  <LogOut className="h-4 w-4" />
-                  {!isCollapsed && <span>Logout</span>}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton onClick={signOut}>
+                    <LogOut className="h-4 w-4" />
+                    {!isCollapsed && <span>Logout</span>}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            )}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

@@ -58,6 +58,30 @@ export type Database = {
           },
         ]
       }
+      admin_permissions: {
+        Row: {
+          admin_user_id: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          menu_item: string
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          menu_item: string
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          menu_item?: string
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           course_code: string
