@@ -561,14 +561,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      delete_user: {
-        Args: { user_id: string }
-        Returns: undefined
-      }
-      generate_student_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      delete_user: { Args: { user_id: string }; Returns: undefined }
+      generate_student_id: { Args: never; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
