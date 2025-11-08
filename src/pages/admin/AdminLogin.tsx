@@ -19,7 +19,7 @@ const AdminLogin = () => {
 
   useEffect(() => {
     if (!authLoading && user && userRole) {
-      if (userRole === "admin") {
+      if (userRole === "admin" || userRole === "super_admin") {
         navigate("/admin");
       } else {
         toast({
@@ -52,7 +52,7 @@ const AdminLogin = () => {
         .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
         .single();
 
-      if (roleData?.role !== "admin") {
+      if (roleData?.role !== "admin" && roleData?.role !== "super_admin") {
         await supabase.auth.signOut();
         toast({
           title: "Access Denied",
