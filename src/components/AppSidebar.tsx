@@ -15,6 +15,7 @@ import {
   DollarSign,
   GraduationCap,
   Shield,
+  UserCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -147,9 +148,18 @@ export function AppSidebar({ role }: AppSidebarProps) {
                       {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              </SidebarMenuItem>
+            ))}
               
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink to="/admin/profile">
+                      <UserCircle className="h-4 w-4" />
+                      {!isCollapsed && <span>Profile</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
                 <SidebarMenuItem>
                   <SidebarMenuButton onClick={signOut}>
                     <LogOut className="h-4 w-4" />

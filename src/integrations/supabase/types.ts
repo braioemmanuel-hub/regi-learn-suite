@@ -585,6 +585,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_admin_user: {
+        Args: {
+          _email: string
+          _full_name: string
+          _password: string
+          _permissions: string[]
+        }
+        Returns: Json
+      }
       delete_user: { Args: { user_id: string }; Returns: undefined }
       generate_student_id: { Args: never; Returns: string }
       get_user_role: {

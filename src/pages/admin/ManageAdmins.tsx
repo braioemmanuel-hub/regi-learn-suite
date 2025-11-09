@@ -133,41 +133,15 @@ export default function ManageAdmins() {
     }
 
     try {
-      // Create the user account
-      const { data: authData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-          },
-        },
+      // Call the database function to create admin user
+      const { data, error } = await supabase.rpc("create_admin_user", {
+        _email: email,
+        _password: password,
+        _full_name: fullName,
+        _permissions: selectedPermissions,
       });
 
-      if (signUpError) throw signUpError;
-      if (!authData.user) throw new Error("Failed to create user");
-
-      // Assign admin role
-      const { error: roleError } = await supabase
-        .from("user_roles")
-        .insert({
-          user_id: authData.user.id,
-          role: "admin"
-        });
-
-      if (roleError) throw roleError;
-
-      // Assign permissions
-      const permissionInserts = selectedPermissions.map(menuItem => ({
-        admin_user_id: authData.user!.id,
-        menu_item: menuItem,
-      }));
-
-      const { error: permError } = await supabase
-        .from("admin_permissions")
-        .insert(permissionInserts);
-
-      if (permError) throw permError;
+      if (error) throw error;
 
       toast.success("Admin created successfully");
       setDialogOpen(false);
