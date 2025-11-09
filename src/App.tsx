@@ -26,6 +26,7 @@ import ManageCourses from "./pages/admin/ManageCourses";
 import UploadDocuments from "./pages/admin/UploadDocuments";
 import ManageTimetable from "./pages/admin/ManageTimetable";
 import ManageAdmins from "./pages/admin/ManageAdmins";
+import SuperAdminDashboard from "./pages/admin/SuperAdminDashboard";
 import Register from "./pages/Register";
 import RegistrationForm from "./pages/student/RegistrationForm";
 import NotFound from "./pages/NotFound";
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/student/registration-form" element={<RegistrationForm />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/super-admin" element={<SuperAdminDashboard />} />
             <Route path="/admin/registrations" element={<ApproveRegistrations />} />
             <Route path="/admin/students" element={<ManageStudents />} />
             <Route path="/admin/results" element={<ManageResults />} />

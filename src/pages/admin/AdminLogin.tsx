@@ -19,7 +19,9 @@ const AdminLogin = () => {
 
   useEffect(() => {
     if (!authLoading && user && userRole) {
-      if (userRole === "admin" || userRole === "super_admin") {
+      if (userRole === "super_admin") {
+        navigate("/super-admin");
+      } else if (userRole === "admin") {
         navigate("/admin");
       } else {
         toast({

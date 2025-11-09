@@ -11,7 +11,13 @@ const Landing = () => {
 
   useEffect(() => {
     if (!loading && user && userRole) {
-      navigate(userRole === "admin" ? "/admin" : "/student");
+      if (userRole === "super_admin") {
+        navigate("/super-admin");
+      } else if (userRole === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/student");
+      }
     }
   }, [user, userRole, loading, navigate]);
 
@@ -118,9 +124,13 @@ const Landing = () => {
       <footer className="border-t bg-card mt-20">
         <div className="container mx-auto px-4 py-8 text-center">
           <p className="text-muted-foreground">&copy; 2025 GreenLeaf University. All rights reserved.</p>
-          <div className="mt-4">
-            <Link to="/admin/login" className="text-sm text-muted-foreground hover:text-primary">
+          <div className="mt-4 flex gap-4 justify-center">
+            <Link to="/admin/login" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Admin Login
+            </Link>
+            <span className="text-muted-foreground">|</span>
+            <Link to="/admin/login" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Super Admin Login
             </Link>
           </div>
         </div>

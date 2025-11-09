@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     setSession(null);
     setUserRole(null);
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   return (
